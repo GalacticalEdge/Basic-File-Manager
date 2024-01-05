@@ -41,7 +41,7 @@ while True:
             path = pl.Path(action[action.find(" ") + 1:])
         else:
             print("Please enter a a valid path")
-    elif action[:action.find(" ")] == "run":
+    elif action[:action.find(" ")] == "run": # Note that from my testing, this part isn't actually working due to file permission issues. I am currently looking into a solution for this.
         if action.find("sudo") != -1:
             confirm_operation = True
             print("You are going to execute a command in sudo mode. This is a potentially dangerous operation that can cause damage to your files or computer. Are you sure you want to continue? ", end="")
