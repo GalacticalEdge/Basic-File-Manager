@@ -42,8 +42,8 @@ while True:
         else:
             print("Please enter a a valid path")
     elif action[:action.find(" ")] == "run": # Note that from my testing, this part isn't actually working due to file permission issues. I am currently looking into a solution for this.
+        confirm_operation = True
         if action.find("sudo") != -1:
-            confirm_operation = True
             print("You are going to execute a command in sudo mode. This is a potentially dangerous operation that can cause damage to your files or computer. Are you sure you want to continue? ", end="")
             while True:
                 user_input = input("\"Y/y\" for yes or \"N/n\" for no: ")
@@ -57,10 +57,7 @@ while True:
                     print("Please enter a valid option")
                     continue
         if confirm_operation:
-            try:
                 sbp.run([str(path), action[action.find(" ") + 1:]])
-            except Exception as e:
-                print("An error occurred in the subprocess. " + "Error: " + str(e))
         else:
             print("Operation aborted")
     else:
