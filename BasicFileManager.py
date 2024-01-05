@@ -36,7 +36,7 @@ while True:
             print(str(directory) + " does not exist or the command is incomplete")
     elif action[:action.find(" ")] == "cd" or action[0:action.find(" ")] == "changedir":
         if action[action.find(" ") + 1] == "~" and pl.Path(str(path) + "/" + action[action.find(" ") + 2:]).is_dir():
-            path = pl.Path(str(path) + "/" + action[action.find(" ") + 2:])
+            path = pl.Path(str(path) + action[action.find(" ") + 2:])
         elif pl.Path(action[action.find(" ") + 1:]).is_dir():
             path = pl.Path(action[action.find(" ") + 1:])
         else:
@@ -57,7 +57,11 @@ while True:
                     print("Please enter a valid option")
                     continue
         if confirm_operation:
-                sbp.run([str(path), action[action.find(" ") + 1:]])
+            try:
+                print(action[action.find(" ") + 1:].split(" ") + [str(path)])
+                sbp.run(action[action.find(" ") + 1:].split(" "), cwd=path)
+            except Exception as e:
+                print("An error occurred in the subprocess. Error: " + str(e))
         else:
             print("Operation aborted")
     else:
