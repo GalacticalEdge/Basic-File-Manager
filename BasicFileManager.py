@@ -3,7 +3,7 @@ import pathlib as pl # Used for identifying file paths
 import tabulate as tbl # Used to print information
 import subprocess as sbp # Used for the "run" command
 from send2trash import send2trash # Used for sending files to the trash
-import os # Used for 
+import os # Used for file operations that shutil does not have
 
 path = pl.Path.home()
 
