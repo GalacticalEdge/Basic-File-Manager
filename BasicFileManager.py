@@ -7,27 +7,32 @@ import os # Used for file operations that shutil does not have
 
 path = pl.Path.home()
 
-# Below are functions regularly used by different commands
-
-def ReturnDirectory(action, path, invalidmessage=True):
-    if action[action.find(" ") + 1] == "~" and pl.Path(str(path) + "/" + action[action.find(" ") + 2:]).is_dir():
-        return pl.Path(str(path) + action[action.find(" ") + 2:])
-    elif pl.Path(action[action.find(" ") + 1:]).is_dir():
-        return pl.Path(action[action.find(" ") + 1:])
-    else:
-        if invalidmessage:
-            print("Please enter a a valid path")
+def ReturnPath(action, path, exist=True, filereturntype="both"):
+    if filereturntype != "both" and filereturntype != "directory" and filereturntype != "file":
+        print("A problem has occurred determining the file return type. Please report this bug.")
         return path
     
-def ReturnFile(action, path):
-    if action[action.find(" ") + 1] == "~" and pl.Path(str(path) + "/" + action[action.find(" ") + 2:]).is_file():
-        return pl.Path(str(path) + action[action.find(" ") + 2:])
-    elif pl.Path(action[action.find(" ") + 1:]).is_file():
-        return pl.Path(action[action.find(" ") + 1:])
+    if action[action.find(" ") + 1] == "~":
+        TargetPath = pl.Path(str(path) + "/" + action[action.find("~") + 2:])
     else:
-        print("Please enter a a valid path")
-        return path
+        TargetPath = pl.Path(str(action[action.find(" ") + 1:]))
     
+    if exist == True:   
+        if ((TargetPath.is_dir() or TargetPath.is_file()) and filereturntype == "both") or (TargetPath.is_dir() and filereturntype == "directory") or (TargetPath.is_file() and filereturntype == "file"):
+            return TargetPath
+        else:
+            if filereturntype == "both":
+                print("Please enter a valid directory or file path")
+                return path
+            else:
+                print("Please enter a valid " + filereturntype + " path")
+                return path
+    else:
+        if not TargetPath.is_dir() or not TargetPath.is_file():
+            return TargetPath
+        else:
+            return path
+        
 # This is where the program's main execution occurs
 
 while True:
@@ -60,7 +65,7 @@ while True:
         else:
             print(str(directory) + " does not exist or the command is incomplete")
     elif action[:action.find(" ")] == "cd" or action[0:action.find(" ")] == "changedir":
-        path = ReturnDirectory(action, path)
+        path = ReturnPath(action, path, True, "directory")
     elif action[:action.find(" ")] == "run": # Note that from my testing, this part isn't actually working due to file permission issues. I am currently looking into a solution for this.
         try:
             # print(action[action.find(" ") + 1:].split(" ") + [str(path)])
@@ -69,7 +74,7 @@ while True:
             print("An error occurred in the subprocess. Error: " + str(e))
     elif action[:action.find(" ")] == "trash":
         try:
-            PathToTrash = ReturnDirectory(action, path, True)
+            PathToTrash = ReturnPath(action, path, True, "both")
             if str(PathToTrash) == str(path):
                 pass
             else:
@@ -78,9 +83,7 @@ while True:
             print("An error has occurred trying to move a directory/file to the trash. Error: " + e)
     elif action[:action.find(" ")] == "remove" or action[:action.find(" ")] == "rm":
         try:
-            PathToDelete = ReturnDirectory(action, path, False)
-            if str(PathToDelete) == str(path):
-                PathToDelete = ReturnFile(action, path)
+            PathToDelete = ReturnPath(action, path, True, "both")
             if str(PathToDelete) == str(path):
                 pass
             else:
@@ -101,8 +104,13 @@ while True:
                         continue
         except Exception as e:
             print("An error has occurred trying to delete a directory/file. Error: " + e)
+    elif action[:action.find(" ")] == "makedir" or action[:action.find(" ")] == "mkdir":
+        NewDirectory = ReturnPath(action, path, False, "directory")
+        if str(NewDirectory) == str(path):
+            pass
+        else:
+            os.mkdir(NewDirectory)
     elif action == "exit":
         exit()
     else:
         print("The entered input is invalid or incomplete. Type \"help\" or \"h\" for more information")
-        
